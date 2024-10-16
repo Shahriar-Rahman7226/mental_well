@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
-from authentication.views.views_v1 import *
+from apps.authentication.views.views_v1 import *
 
 urlpatterns = [
     # JWT Token

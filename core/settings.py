@@ -32,7 +32,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
-CUSTOM_APPS = []
+CUSTOM_APPS = [
+    'apps.authentication',
+    'apps.dashboard',
+    'apps.user',
+    'apps.user_profile',
+]
 
 INSTALLED_LIBRARIES = [
     'rest_framework',
@@ -91,18 +96,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-    # "default": {
-    #     "ENGINE": config('DB_ENGINE', cast=str),
-    #     "NAME": config('DB_NAME', cast=str),
-    #     "USER": config('DB_USER', cast=str),
-    #     "PASSWORD": config('DB_PASSWORD', cast=str),
-    #     "HOST": config('DB_HOST', cast=str),
-    #     "PORT": config('DB_PORT', cast=int),
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
+    "default": {
+        "ENGINE": config('DB_ENGINE', cast=str),
+        "NAME": config('DB_NAME', cast=str),
+        "USER": config('DB_USER', cast=str),
+        "PASSWORD": config('DB_PASSWORD', cast=str),
+        "HOST": config('DB_HOST', cast=str),
+        "PORT": config('DB_PORT', cast=int),
+    }
 }
 
 
@@ -159,7 +164,7 @@ MAX_UPLOAD_SIZE = 20 * 1024 * 1024
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AUTH_USER_MODEL = ''
+AUTH_USER_MODEL = 'user.UserModel'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',

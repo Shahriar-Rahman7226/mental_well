@@ -8,12 +8,11 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from external.pagination import CustomPagination
 from external.swagger_query_params import set_query_params
-from user.serializers.serializers_v1 import *
-from user.models import *
+from apps.user.serializers.serializers_v1 import *
+from apps.user.models import *
 from external.send_message import send_email, send_sms
 from rest_framework import status
 from external.permission_decorator import allowed_users
-# from external.query_helper import get_query_data
 
 @extend_schema(tags=['User Registration'])
 class UserResgistrationViewSet(ModelViewSet):

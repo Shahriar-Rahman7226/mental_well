@@ -11,9 +11,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.exceptions import TokenError, TokenBackendError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from authentication.serializers.serializers_v1 import *
+from apps.authentication.serializers.serializers_v1 import *
 from external.time_checker import time_checker
-from user.models import UserModel
+from apps.user.models import UserModel
 from rest_framework import status
 from external.send_message import send_email, send_sms
 from django.contrib.auth.tokens import default_token_generator

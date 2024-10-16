@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import *
 
-from user.models import *
+from apps.user.models import *
 
 exclude_list = [
     'is_active',
