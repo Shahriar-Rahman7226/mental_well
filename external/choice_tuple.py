@@ -14,3 +14,14 @@ PaymentMethodType = (
     # ('VISA', 'visa'),
     # ('MASTER_CARD', 'master_card'),
 )
+
+ProfileStatus = (
+    ('PENDING', 'pending'),
+    ('APPROVED', 'approved'),
+)
+
+Gender = (
+    ('MALE', 'male'),
+    ('FEMALE', 'female'),
+    ('OTHER', 'other')
+)

@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.db import models
 # from address_app.models import HubModel
 from abstract.base_model import CustomModel
-from external.choice_tuple import UserRole
+from external.choice_tuple import UserRole, Gender
 
 
 # Create your models here.
@@ -34,6 +34,9 @@ class UserModel(AbstractBaseUser, CustomModel, PermissionsMixin):
     email = models.EmailField(blank=True, null=True, unique=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True, unique=True)
+    profile_pic = models.ImageField(upload_to="profile_pic/", blank=True, null=True)
+    language = models.CharField(max_length=100, blank=True, null=True)
+    gender = models.CharField(max_length=50, blank=True, null=True, choices=Gender)
     user_role = models.CharField(max_length=50, blank=True, null=True, choices=UserRole)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
