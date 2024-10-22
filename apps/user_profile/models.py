@@ -4,6 +4,7 @@ from apps.user.models import UserModel
 from external.choice_tuple import ProfileStatus
 # Create your models here.
 
+
 class SpecializationModel(CustomModel):
     title = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -44,7 +45,6 @@ class ClientProfileModel(CustomModel):
     goals = models.TextField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=20, blank=True, null=True, unique=True)
     status = models.CharField(max_length=100, blank=True, null=True, choices=ProfileStatus, default=ProfileStatus[0][0])
-
     
 
     class Meta:

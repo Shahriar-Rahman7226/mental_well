@@ -26,3 +26,20 @@ Gender = (
     ('FEMALE', 'female'),
     ('OTHER', 'other')
 )
+
+Days = (
+    ('SUNDAY', 'sunday'),
+    ('MONDAY', 'monday'),
+    ('TUESDAY', 'tuesday'),
+    ('WEDNESDAY', 'wednesday'),
+    ('THURSDAY', 'thursday'),
+    ('FRIDAY', 'friday'),
+    ('SATURDAY', 'saturday'),
+)
+
+AppointmentStatus = (
+    ('PENDING', 'pending'),
+    ('CONFIRMED', 'confirmed'),
+    ('DONE', 'done'),
+    ('CANCELLED', 'cancelled'),
+)
