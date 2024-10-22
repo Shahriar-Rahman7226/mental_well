@@ -18,6 +18,7 @@ PaymentMethodType = (
 ProfileStatus = (
     ('PENDING', 'pending'),
     ('APPROVED', 'approved'),
+    ('REJECTED', 'rejected'),
 )
 
 Gender = (
