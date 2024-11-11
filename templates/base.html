@@ -1,0 +1,28 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mental Health Counseling Center</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Mental Health Counseling Center</h1>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'about' %}">About Us</a>
+            <a href="{% url 'faq' %}">FAQ</a>
+            <a href="{% url 'noticeboard' %}">NoticeBoard</a>
+        </nav>
+    </header>
+
+    {% block banner %}{% endblock %}  <!-- Banner section -->
+    {% block content %}{% endblock %}  <!-- Main content -->
+
+    <footer>
+        <p>&copy; 2024 Mental Health Counseling Center. All rights reserved.</p>
+    </footer>
+</body>
+</html>

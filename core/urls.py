@@ -19,8 +19,7 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from core import settings
 from django.conf.urls.static import static
-from renderer.views import render_index_page
-
+from renderer import views  # Import views from renderer
 
 swagger_urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -29,7 +28,11 @@ swagger_urlpatterns = [
 ]
 
 urlpatterns = [
-    path('', render_index_page, name='home_page'),
+    path('', views.home, name='home'),           # Homepage with banner
+    path('about/', views.about, name='about'),   # About Us page
+    path('faq/', views.faq, name='faq'),         # FAQ page
+    path('noticeboard/', views.noticeboard, name='noticeboard'),  # NoticeBoard page
+
     path('admin/', admin.site.urls),
     path('user/', include('apps.user.urls.urls_v1')),
     path('user_profile/', include('apps.user_profile.urls.urls_v1')),

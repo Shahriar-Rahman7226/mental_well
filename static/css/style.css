@@ -1,0 +1,33 @@
+/* static/css/styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+header, footer {
+    background-color: #333;
+    color: white;
+    padding: 1em;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+.banner {
+    background-color: #f4f4f4;
+    padding: 2em;
+    text-align: center;
+}
+
+.about, .faq, .noticeboard {
+    padding: 2em;
+    text-align: center;
+}
+
+footer {
+    margin-top: 2em;
+}
