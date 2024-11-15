@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Review, Article, Vlog
+from ..models import Review, Article, VideoJournal
 
 class ReviewSerializer(serializers.ModelSerializer):
     client = serializers.StringRelatedField()  #  the client's username 
@@ -8,10 +8,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'client', 'counselor_name', 'rating', 'review_text', 'created_at']
 
 
-
-
-
-        class ArticleSerializer(serializers.ModelSerializer):
+class ArticleSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()  # Display the author's username
     
     class Meta:
@@ -19,11 +16,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'author', 'content', 'published_at', 'updated_at']
 
 
-
-
-
-
-        class VlogSerializer(serializers.ModelSerializer):
+class VlogSerializer(serializers.ModelSerializer):
     posted_by = serializers.StringRelatedField()  # Display the user's username who posted the vlog
     
     class Meta:
