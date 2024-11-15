@@ -78,7 +78,7 @@ class FooterModel(CustomModel):
     contact_number = models.CharField(max_length=100, blank=True, null=True)
     contact_email = models.EmailField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    emergency_support = models.TextField(blasnk=True, null=True)
+    emergency_support = models.TextField(blank=True, null=True)
     facebook = models.URLField(blank=True, null=True)
     instagram = models.URLField(blank=True, null=True)
     youtube = models.URLField(blank=True, null=True)
@@ -137,7 +137,7 @@ class ClientProgress(CustomModel):
 
 
 class ClientProgressDetails(CustomModel):
-    overview = models.ForeignKey(ClientOverview, related_name='progress_details', on_delete=models.CASCADE, blank=True, null=True)
+    overview = models.ForeignKey(ClientProfileModel, related_name='progress_details', on_delete=models.CASCADE, blank=True, null=True)
     appointment = models.ForeignKey(AppointmentRequest, related_name='progress_appointment', on_delete=models.CASCADE, blank=True, null=True)
     details = models.TextField(blank=True, null=True)
 
@@ -149,7 +149,7 @@ class ClientProgressDetails(CustomModel):
 class Achievements(CustomModel):
     counselor = models.ForeignKey(CounselorProfileModel, related_name='counselor_achievements', on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True)
-    awarded_by = models.Charfield(max_length=100, blank=True, null=True)
+    awarded_by = models.CharField(max_length=100, blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     details = models.TextField(blank=True, null=True)
 
@@ -200,7 +200,7 @@ class FAQModel(CustomModel):
     client = models.ForeignKey(UserModel, related_name='faq_client', on_delete=models.CASCADE, blank=True, null=True)
     question = models.TextField(blank=True, null=True)
     asnwer = models.TextField(blank=True, null=True)
-    is_published = models.BooleanField(blank=True, nul=True)
+    is_published = models.BooleanField(blank=True, null=True)
 
     class Meta:
         db_table='faq_model'
