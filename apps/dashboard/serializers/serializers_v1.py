@@ -1,25 +1,24 @@
-# serializers.py
 from rest_framework import serializers
-from .models import CounselorSchedule, AppointmentRequest
-from .models import SessionPackage, Payment
+from ..models import Review, Article, VideoJournal
 
-class CounselorScheduleSerializer(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
+    client = serializers.StringRelatedField()  #  the client's username 
     class Meta:
-        model = CounselorSchedule
-        fields = '__all__'
+        model = Review
+        fields = ['id', 'client', 'counselor_name', 'rating', 'review_text', 'created_at']
 
-class AppointmentRequestSerializer(serializers.ModelSerializer):
+
+class ArticleSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()  # Display the author's username
+    
     class Meta:
-        model = AppointmentRequest
-        fields = '__all__'
+        model = Article
+        fields = ['id', 'title', 'author', 'content', 'published_at', 'updated_at']
 
 
-class SessionPackageSerializer(serializers.ModelSerializer):
+class VlogSerializer(serializers.ModelSerializer):
+    posted_by = serializers.StringRelatedField()  # Display the user's username who posted the vlog
+    
     class Meta:
-        model = SessionPackage
-        fields = '__all__'
-
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payment
-        fields = '__all__'
+        model = Vlog
+        fields = ['id', 'title', 'video_url', 'description', 'posted_by', 'posted_at']
