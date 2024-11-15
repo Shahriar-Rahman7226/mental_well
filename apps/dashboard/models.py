@@ -128,7 +128,7 @@ class AppointmentRequest(CustomModel):
 class ClientProgress(CustomModel):
     counselor = models.ForeignKey(CounselorProfileModel, related_name='client_progress_counselor', on_delete=models.CASCADE, blank=True, null=True)
     client = models.ForeignKey(ClientProfileModel, related_name='client_progress_client', on_delete=models.CASCADE, blank=True, null=True)
-    status = models.CharField(blank=True, null=True, choices=ClientOverview, default=ClientOverview[0][0])
+    status = models.CharField(max_length=100, blank=True, null=True, choices=ClientOverview, default=ClientOverview[0][0])
     session_count = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
