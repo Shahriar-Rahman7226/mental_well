@@ -1,52 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User
-
-class Review(models.Model):
-    client = models.ForeignKey(User, on_delete=models.CASCADE) 
-    counselor_name = models.CharField(max_length=200)  
-    rating = models.PositiveIntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]) 
-    review_text = models.TextField() 
-    created_at = models.DateTimeField(auto_now_add=True)  
-
-    def __str__(self):
-        return f"Review by {self.client.username} for {self.counselor_name}"
-
-    class Meta:
-        ordering = ['-created_at'] 
-
-        
-
-
-       class Article(models.Model):
-    title = models.CharField(max_length=200) 
-    author = models.ForeignKey(User, on_delete=models.CASCADE)  
-    content = models.TextField()  # Full content of the article
-    published_at = models.DateTimeField(auto_now_add=True)  
-    updated_at = models.DateTimeField(auto_now=True)  
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        ordering = ['-published_at'] 
-
-
-
-
-        class Vlog(models.Model):
-    title = models.CharField(max_length=200)  
-    video_url = models.URLField()  
-    description = models.TextField()  
-    posted_by = models.ForeignKey(User, on_delete=models.CASCADE)  
-    posted_at = models.DateTimeField(auto_now_add=True) 
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        ordering = ['-posted_at'] 
+from apps.user.models import UserModel
 from abstract.base_model import CustomModel
 from apps.user_profile.models import *
-from external.choice_tuple import Days, AdminStatus, ClientOverview, PackageType, PaymentMethodType
+from external.choice_tuple import Days, AdminStatus, ClientOverview, PackageType, PaymentMethodType, ReviewStatus
+
 
 # ----- COUNSELOR MODELS -----
 # Available time slots or schedules for each counselor
@@ -83,6 +40,41 @@ class AppointmentRequest(CustomModel):
     def __str__(self):
         return f"{self.client.user.first_name if self.client.user else ''} {self.client.user.last_name if self.client.user else ''} - {self.status if self.status else ''}"
 
+class Article(CustomModel):
+    thumbnail = models.ImageField(upload_to='article/', blank=True, null=True)
+    title = models.CharField(max_length=100, blank=True, null=True) 
+    author = models.ForeignKey(CounselorProfileModel, related_name='author_article', on_delete=models.CASCADE, blank=True, null=True)
+    author_name = models.CharField(max_length=100, blank=True, null=True)  
+    article_file = models.FileField(blank=True, null=True)
+    published_at = models.DateTimeField(blank=True, null=True)  
+    status = models.CharField(max_length=100, blank=True, null=True, choices=ReviewStatus, default=ReviewStatus[0][0])
+    is_published = models.BooleanField(blank=True, null=True) 
+
+    def __str__(self):
+        return f"{self.title if self.title else ''} - {self.author_name if self.author_name else ''}"
+
+    class Meta:
+        db_table='article'
+        ordering = ['-created_at'] 
+
+
+class VideoJournal(CustomModel):
+    thumbnail = models.ImageField(upload_to='video_journal/', blank=True, null=True)
+    title = models.CharField(max_length=100, blank=True, null=True) 
+    author = models.ForeignKey(CounselorProfileModel, related_name='author_video_journal', on_delete=models.CASCADE, blank=True, null=True)
+    author_name = models.CharField(max_length=100, blank=True, null=True)  
+    journal_link = models.URLField(blank=True, null=True)
+    published_at = models.DateTimeField(blank=True, null=True)
+    status = models.CharField(max_length=100, blank=True, null=True, choices=ReviewStatus, default=ReviewStatus[0][0])
+    is_published = models.BooleanField(blank=True, null=True) 
+  
+
+    def __str__(self):
+        return f"{self.title if self.title else ''} - {self.author_name if self.author_name else ''}"
+
+    class Meta:
+        db_table='video_journal'
+        ordering = ['-created_at'] 
 
 #Payment Type
 class Payment(CustomModel):
@@ -113,3 +105,18 @@ class Payment(CustomModel):
 #         db_table = 'session_package'
 
 
+class Review(CustomModel):
+    counselor = models.ForeignKey(CounselorProfileModel, related_name='counselor_review', on_delete=models.CASCADE, blank=True, null=True)
+    client = models.ForeignKey(ClientProfileModel, related_name='client_review', on_delete=models.CASCADE, blank=True, null=True)
+    rating = models.PositiveIntegerField(blank=True, null=True) 
+    review_text = models.TextField(blank=True, null=True)
+    client_name = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=100, blank=True, null=True, choices=ReviewStatus, default=ReviewStatus[0][0])
+    is_published = models.BooleanField(blank=True, null=True) 
+
+    def __str__(self):
+        return f"{self.client_name if self.client_name else ''} - {self.rating if self.rating else ''}"
+
+    class Meta:
+        db_table = 'review'
+        ordering = ['-created_at'] 

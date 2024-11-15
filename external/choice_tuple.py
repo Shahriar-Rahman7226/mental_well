@@ -51,3 +51,9 @@ PackageType = (
         ('SINGLE', 'single'),
         ('FIVE', 'five'),
 )
+
+ReviewStatus = (
+    ('PENDING', 'pending'),
+    ('ACCEPTED', 'accepted'),
+    ('REJECTED', 'rejected'),
+)
