@@ -1,9 +1,12 @@
-from django.urls import path
-from . import views
+# urls.py
+from django.urls import path, include
+
 
 urlpatterns = [
-    path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
-    path('dashboard/user-stats/', views.UserStatsView.as_view(), name='user-stats'),
-    path('dashboard/recent-appointments/', views.RecentAppointmentsView.as_view(), name='recent-appointments'),
-    path('dashboard/recent-activity/', views.RecentActivityView.as_view(), name='recent-activity'),
+    # path('counselor-schedules/', views.CounselorScheduleListCreateView.as_view(), name='counselor_schedule_list_create'),
+    # path('counselor-schedules/<int:pk>/', views.CounselorScheduleDetailView.as_view(), name='counselor_schedule_detail'),
+    # path('appointments/', views.AppointmentRequestListCreateView.as_view(), name='appointment_list_create'),
+    # path('appointments/<int:pk>/', views.AppointmentRequestDetailView.as_view(), name='appointment_detail'),
+    # path('session-packages/', views.SessionPackageListView.as_view(), name='session_package_list'),
+    # path('make-payment/', views.PaymentCreateView.as_view(), name='make_payment'),
 ]

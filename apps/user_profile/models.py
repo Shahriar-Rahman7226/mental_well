@@ -1,7 +1,7 @@
 from django.db import models
 from abstract.base_model import CustomModel
 from apps.user.models import UserModel
-from external.choice_tuple import ProfileStatus
+from external.choice_tuple import AdminStatus
 # Create your models here.
 
 
@@ -26,7 +26,8 @@ class CounselorProfileModel(CustomModel):
     license_number = models.CharField(max_length=100, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     linked_in = models.URLField(blank=True, null=True)
-    status = models.CharField(max_length=100, blank=True, null=True, choices=ProfileStatus, default=ProfileStatus[0][0])
+    status = models.CharField(max_length=100, blank=True, null=True, choices=AdminStatus, default=AdminStatus[0][0])
+    pay_per_session = models.FloatField(blank=True, null=True)
 
     
 
@@ -44,7 +45,7 @@ class ClientProfileModel(CustomModel):
     description = models.TextField(blank=True, null=True)
     goals = models.TextField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=20, blank=True, null=True, unique=True)
-    status = models.CharField(max_length=100, blank=True, null=True, choices=ProfileStatus, default=ProfileStatus[0][0])
+    status = models.CharField(max_length=100, blank=True, null=True, choices=AdminStatus, default=AdminStatus[0][0])
     
 
     class Meta:

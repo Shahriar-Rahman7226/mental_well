@@ -15,12 +15,6 @@ PaymentMethodType = (
     # ('MASTER_CARD', 'master_card'),
 )
 
-ProfileStatus = (
-    ('PENDING', 'pending'),
-    ('APPROVED', 'approved'),
-    ('REJECTED', 'rejected'),
-)
-
 Gender = (
     ('MALE', 'male'),
     ('FEMALE', 'female'),
@@ -37,9 +31,29 @@ Days = (
     ('SATURDAY', 'saturday'),
 )
 
-AppointmentStatus = (
+AdminStatus = (
     ('PENDING', 'pending'),
     ('CONFIRMED', 'confirmed'),
     ('DONE', 'done'),
     ('CANCELLED', 'cancelled'),
+    ('REJECTED', 'rejected'),
+)
+
+ClientOverview = (
+    ('ASSIGNED', 'assigned'),
+    ('ONGOING', 'ongoing'),
+    ('COMPLETED', 'completed'),
+    ('INCOMPLETE', 'incomplete'),
+)
+
+
+PackageType = (
+        ('SINGLE', 'single'),
+        ('FIVE', 'five'),
+)
+
+ReviewStatus = (
+    ('PENDING', 'pending'),
+    ('ACCEPTED', 'accepted'),
+    ('REJECTED', 'rejected'),
 )
