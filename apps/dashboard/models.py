@@ -207,23 +207,63 @@ class FAQModel(CustomModel):
         ordering=['-created_at']
 
 
-#Payment Type
+# Payment Form
 class Payment(CustomModel):
-    counselor = models.ForeignKey(CounselorProfileModel, related_name='counselor_payment', on_delete=models.CASCADE, blank=True, null=True)
-    client = models.ForeignKey(ClientProfileModel, related_name='client_payment', on_delete=models.CASCADE, blank=True, null=True)
-    # package = models.ForeignKey(SessionPackage, on_delete=models.CASCADE)
-    appointment = models.ForeignKey(AppointmentRequest, related_name='appointment_schedule', on_delete=models.CASCADE, blank=True, null=True)
-    due_amount = models.FloatField(blank=True, null=True)
-    paid_amount = models.FloatField(blank=True, null=True)
-    payment_date = models.DateField(blank=True, null=True)
-    transaction_id = models.CharField(max_length=255, blank=True, null=True)
-    payment_method = models.CharField(max_length=100, choices=PaymentMethodType, default=PaymentMethodType[0][0], blank=True, null=True)
+    counselor = models.ForeignKey(
+        CounselorProfileModel, 
+        related_name='counselor_payment', 
+        on_delete=models.CASCADE, 
+        blank=True, 
+        null=True
+    )
+    client = models.ForeignKey(
+        ClientProfileModel, 
+        related_name='client_payment', 
+        on_delete=models.CASCADE, 
+        blank=True, 
+        null=True
+    )
+    appointment = models.ForeignKey(
+        AppointmentRequest, 
+        related_name='appointment_schedule', 
+        on_delete=models.CASCADE, 
+        blank=True, 
+        null=True
+    )
+    due_amount = models.FloatField(
+        blank=True, 
+        null=True, 
+        default=500  # Defaulting to 500 Taka per session
+    )
+    paid_amount = models.FloatField(
+        blank=True, 
+        null=True
+    )
+    payment_date = models.DateField(
+        blank=True, 
+        null=True
+    )
+    transaction_id = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True
+    )
+    payment_method = models.CharField(
+        max_length=100, 
+        choices=PaymentMethodType, 
+        default=PaymentMethodType[0][0], 
+        blank=True, 
+        null=True
+    )
 
     class Meta:
         db_table = 'payment'
 
     def __str__(self):
-        return f"{self.client.user.first_name if self.client.user else ''} {self.client.user.last_name if self.client.user else ''} - {self.transaction_id if self.transaction_id else ''}"
+        first_name = self.client.user.first_name if self.client and self.client.user else ''
+        last_name = self.client.user.last_name if self.client and self.client.user else ''
+        transaction_id = self.transaction_id if self.transaction_id else ''
+        return f"{first_name} {last_name} - {transaction_id}"
 
 
 # #Session Price and Booking
