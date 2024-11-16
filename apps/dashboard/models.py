@@ -55,9 +55,8 @@ class PrivacyPolicy(CustomModel):
 
 class AboutUs(CustomModel):
     introduction = models.TextField(blank=True, null=True)
-    mission_statement = models.TextField(blank=True, null=True)
-    vision_statement = models.TextField(blank=True, null=True)
-    history = models.TextField(blank=True, null=True)
+    mission = models.TextField(blank=True, null=True)
+    vision = models.TextField(blank=True, null=True)
     details = models.TextField(blank=True, null=True)
     contact_number = models.CharField(max_length=100, blank=True, null=True)
     contact_email = models.EmailField(blank=True, null=True)
@@ -209,55 +208,18 @@ class FAQModel(CustomModel):
 
 # Payment Form
 class Payment(CustomModel):
-    counselor = models.ForeignKey(
-        CounselorProfileModel, 
-        related_name='counselor_payment', 
-        on_delete=models.CASCADE, 
-        blank=True, 
-        null=True
-    )
-    client = models.ForeignKey(
-        ClientProfileModel, 
-        related_name='client_payment', 
-        on_delete=models.CASCADE, 
-        blank=True, 
-        null=True
-    )
-    appointment = models.ForeignKey(
-        AppointmentRequest, 
-        related_name='appointment_schedule', 
-        on_delete=models.CASCADE, 
-        blank=True, 
-        null=True
-    )
-    due_amount = models.FloatField(
-        blank=True, 
-        null=True, 
-        default=500  # Defaulting to 500 Taka per session
-    )
-    paid_amount = models.FloatField(
-        blank=True, 
-        null=True
-    )
-    payment_date = models.DateField(
-        blank=True, 
-        null=True
-    )
-    transaction_id = models.CharField(
-        max_length=255, 
-        blank=True, 
-        null=True
-    )
-    payment_method = models.CharField(
-        max_length=100, 
-        choices=PaymentMethodType, 
-        default=PaymentMethodType[0][0], 
-        blank=True, 
-        null=True
-    )
+    counselor = models.ForeignKey(CounselorProfileModel, related_name='counselor_payment', on_delete=models.CASCADE, blank=True, null=True)
+    client = models.ForeignKey(ClientProfileModel, related_name='client_payment', on_delete=models.CASCADE, blank=True, null=True)
+    appointment = models.ForeignKey(AppointmentRequest, related_name='appointment_schedule', on_delete=models.CASCADE, blank=True, null=True)
+    due_amount = models.FloatField(blank=True, null=True, default=500)  # Defaulting to 500 Taka per session
+    paid_amount = models.FloatField(blank=True, null=True)
+    payment_date = models.DateField(blank=True, null=True)
+    transaction_id = models.CharField(max_length=255, blank=True, null=True)
+    payment_method = models.CharField(max_length=100, choices=PaymentMethodType, default=PaymentMethodType[0][0], blank=True, null=True)
 
     class Meta:
         db_table = 'payment'
+        ordering = ['-created_at']
 
     def __str__(self):
         first_name = self.client.user.first_name if self.client and self.client.user else ''
