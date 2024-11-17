@@ -10,6 +10,7 @@ from ..models import *
 from external.send_message import send_email, send_sms
 from rest_framework import status
 from external.permission_decorator import allowed_users
+import time
 
 
 @extend_schema(tags=['Banner'])
@@ -267,6 +268,7 @@ class LegalDocumentViewSet(ModelViewSet):
         serializer = serializer_class(obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
 @extend_schema(tags=['Privacy Policy'])
 class PrivacyPolicyViewSet(ModelViewSet):
     model_class = PrivacyPolicy
@@ -451,6 +453,9 @@ class CounselorScheduleViewSet(ModelViewSet):
         if not instance:
             return Response({'message': 'Invalid Counselor'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if data['start_time'] > data['end_time']:
+            return Response({'message': 'Start time cannot be greater than end time'}, status=status.HTTP_400_BAD_REQUEST)
+       
         serializer = self.serializer_class(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -475,7 +480,6 @@ class CounselorScheduleViewSet(ModelViewSet):
             )
         ],
     )
-    @transaction.atomic()
     @allowed_users(allowed_roles=['COUNSELOR'])
     def update(self, request, *args, **kwargs):
       
@@ -484,6 +488,9 @@ class CounselorScheduleViewSet(ModelViewSet):
         if not instance:
             return Response({'message': 'Counselor schedule does not exists'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if request.data['start_time'] > request.data['end_time']:
+            return Response({'message': 'Start time cannot be greater than end time'}, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = self.serializer_class(instance=instance, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -512,9 +519,13 @@ class CounselorScheduleViewSet(ModelViewSet):
 
         serializer = self.serializer_class(instance=instance, data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            schedule_obj = serializer.save()
+            subject = 'Mental Well'
+            message = f'Your schedule for {schedule_obj.day} was {schedule_obj.status}.'
+            send_email(schedule_obj.counselor.user.id, subject, message, None)
             return Response({'message': 'Counselor schedule status updated successfully'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     @extend_schema(parameters=set_query_params('list', [
         {"name": 'counselor_id', "description": 'Filter by counselor_id'},
@@ -649,9 +660,24 @@ class AppointmentRequestViewSet(ModelViewSet):
         if not instance:
             return Response({'message': 'Appointment Request does not exists'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if request.data['status'] == 'CONFIRMED':
+            payment_instance = {
+                'counselor': instance.counselor,
+                'client': instance.client,
+                'appointment': instance.id,
+                'due_amount': instance.counselor.user.pay_per_session,
+            }
+            payment_serializer = PaymentSerializer(data=payment_instance)
+            if payment_serializer.is_valid(raise_exception=True):
+                payment_serializer.save()
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = self.serializer_class(instance=instance, data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            appointment_obj = serializer.save()
+            subject = 'Mental Well'
+            message = f'Your appointment request on {appointment_obj.schedule.day} was {appointment_obj.status}.'
+            send_email(appointment_obj.client.user.id, subject, message, None)
             return Response({'message': 'Appointment Request status updated successfully'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -892,4 +918,666 @@ class ClientProgressDetailsViewSet(ModelViewSet):
             return Response({'message': 'Client Progress Details does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.serializer_class(obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@extend_schema(tags=['Achievements'])
+class AchievementsViewSet(ModelViewSet):
+    model_class = Achievements
+    serializer_class = AchievementsSerializer
+    queryset = model_class.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_classes = CustomPagination
+    lookup_field = 'id'
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+                "Create Achievements",
+                value={
+                    "title": "string",
+                    "awarded_by": "string",
+                    "date": "string",
+                    "details": "string",
+                },
+                request_only=True,
+            )
+        ]
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['COUNSELOR'])
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        counselor_instance = CounselorProfileModel.objects.filter(user__id=request.user.id, user__user_role='COUNSELOR').first()
+        if not counselor_instance:
+            return Response({'message': 'Invalid Counselor'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data['counselor']=request.user.id
+
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Achievement added succesfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Achievement",
+                value={
+                    "title": "string",
+                    "awarded_by": "string",
+                    "date": "string",
+                    "details": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['COUNSELOR'])
+    def update(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Achievement does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Achievement updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Achievement Status",
+                value={
+                    "status": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @allowed_users(allowed_roles=['ADMIN'])
+    def update_status(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Achievement does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Achievement status updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(parameters=set_query_params('list', [
+        {"name": 'counselor_id', "description": 'Filter by counselor_id'},
+    ]))
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset
+        counselor_id = request.query_params.get('counselor_id', None)
+        if counselor_id:
+            queryset = queryset.filter(counselor=counselor_id, status="APPROVED")
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = self.queryset
+        obj = queryset.filter(id=request.user.id).first()
+        if not obj:
+            return Response({'message': 'Achievement does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@extend_schema(tags=['Article'])
+class ArticleViewSet(ModelViewSet):
+    model_class = Article
+    serializer_class = ArticleSerializer
+    queryset = model_class.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_classes = CustomPagination
+    lookup_field = 'id'
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+                "Create Article",
+                value={
+                    "image": "string",
+                    "title": "string",
+                    "article_file": "string",
+                    "published_at": "string",
+                },
+                request_only=True,
+            )
+        ]
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['COUNSELOR'])
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        counselor_instance = CounselorProfileModel.objects.filter(user__id=request.user.id, user__user_role='COUNSELOR').first()
+        if not counselor_instance:
+            return Response({'message': 'Invalid Counselor'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data['author']=request.user.id
+            data['author_name']=f"{request.user.first_name if request.user.first_name else ''} {request.user.last_name if request.user.last_name else ''}"
+
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Article created succesfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Article",
+                value={
+                    "image": "string",
+                    "title": "string",
+                    "article_file": "string",
+                    "published_at": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['COUNSELOR'])
+    def update(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Article does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Article updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Article Status",
+                value={
+                    "status": "string",
+                    "is_published": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @allowed_users(allowed_roles=['ADMIN'])
+    def update_status(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Article does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Article status updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(parameters=set_query_params('list', [
+        {"name": 'counselor_id', "description": 'Filter by counselor_id'},
+    ]))
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset
+        counselor_id = request.query_params.get('counselor_id', None)
+        if counselor_id:
+            queryset = queryset.filter(counselor=counselor_id, is_published=True)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = self.queryset
+        obj = queryset.filter(id=request.user.id).first()
+        if not obj:
+            return Response({'message': 'Article does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@extend_schema(tags=['Video Journal'])
+class VideoJournalViewSet(ModelViewSet):
+    model_class = VideoJournal
+    serializer_class = VideoJournalSerializer
+    queryset = model_class.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_classes = CustomPagination
+    lookup_field = 'id'
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+                "Create Video Journal",
+                value={
+                    "image": "string",
+                    "title": "string",
+                    "video_link": "string",
+                    "published_at": "string",
+                },
+                request_only=True,
+            )
+        ]
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['COUNSELOR'])
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        counselor_instance = CounselorProfileModel.objects.filter(user__id=request.user.id, user__user_role='COUNSELOR').first()
+        if not counselor_instance:
+            return Response({'message': 'Invalid Counselor'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data['author']=request.user.id
+            data['author_name']=f"{request.user.first_name if request.user.first_name else ''} {request.user.last_name if request.user.last_name else ''}"
+
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Video Journal created succesfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Video Journal",
+                value={
+                     "image": "string",
+                    "title": "string",
+                    "video_link": "string",
+                    "published_at": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['COUNSELOR'])
+    def update(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Video Journal does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Video Journal updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Video Journal Status",
+                value={
+                    "status": "string",
+                    "is_published": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @allowed_users(allowed_roles=['ADMIN'])
+    def update_status(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Video Journal does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Video Journal status updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(parameters=set_query_params('list', [
+        {"name": 'counselor_id', "description": 'Filter by counselor_id'},
+    ]))
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset
+        counselor_id = request.query_params.get('counselor_id', None)
+        if counselor_id:
+            queryset = queryset.filter(counselor=counselor_id, is_published=True)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = self.queryset
+        obj = queryset.filter(id=request.user.id).first()
+        if not obj:
+            return Response({'message': 'Video Journal does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@extend_schema(tags=['FAQ'])
+class FAQViewSet(ModelViewSet):
+    model_class = FAQModel
+    serializer_class = FAQSerializer
+    queryset = model_class.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_classes = CustomPagination
+    lookup_field = 'id'
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+                "Create FAQ",
+                value={
+                    "question": "string",
+                },
+                request_only=True,
+            )
+        ]
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['CLIENT'])
+    def create(self, request, *args, **kwargs):
+        instance = ClientProfileModel.objects.filter(user__id=request.user.id).first()
+        if not instance:
+            return Response({'message': 'Invalid Client'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            request.data['client'] = request.user.id
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'FAQ created succesfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update FAQ Status",
+                value={
+                    "answer": "string",
+                    "is_published": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @allowed_users(allowed_roles=['ADMIN'])
+    def update_status(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'FAQ does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'FAQ answered successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(is_published=True)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = self.queryset
+        obj = queryset.filter(id=request.user.id).first()
+        if not obj:
+            return Response({'message': 'FAQ does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@extend_schema(tags=['Review'])
+class ReviewViewSet(ModelViewSet):
+    model_class = Review
+    serializer_class = ReviewSerializer
+    queryset = model_class.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_classes = CustomPagination
+    lookup_field = 'id'
+
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+                "Create Review",
+                value={
+                    "counselor": "string",
+                    "rating": 5,
+                    "review_text": "string",
+                },
+                request_only=True,
+            )
+        ]
+    )
+    @transaction.atomic()
+    @allowed_users(allowed_roles=['CLIENT'])
+    def create(self, request, *args, **kwargs):
+        instance = ClientProfileModel.objects.filter(user__id=request.user.id).first()
+        if not instance:
+            return Response({'message': 'Invalid Client'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            request.data['client'] = request.user.id
+
+        appointment_qs = AppointmentRequest.objects.filter(client=request.user.id, status='DONE')
+        request.data['appointment_count'] = appointment_qs.count()
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Review created succesfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Review Status",
+                value={
+                    "status": "string",
+                    "is_published": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @allowed_users(allowed_roles=['ADMIN'])
+    def update_status(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Review does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'message': 'Review updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(is_published=True)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = self.queryset
+        obj = queryset.filter(id=request.user.id).first()
+        if not obj:
+            return Response({'message': 'Review does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@extend_schema(tags=['Payment'])
+class PaymentViewSet(ModelViewSet):
+    model_class = Payment
+    serializer_class = PaymentSerializer
+    queryset = model_class.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_classes = CustomPagination
+    lookup_field = 'id'
+        
+    @extend_schema(
+        examples=[
+            OpenApiExample(
+               "Update Payment",
+                value={
+                    "paid_amount": "string",
+                    "payment_method": "string",
+                    "payment_date": "string",
+                },
+                request_only=True,
+            )
+        ],
+    )
+    @allowed_users(allowed_roles=['CLIENT'])
+    def update(self, request, *args, **kwargs):
+      
+        instance = self.queryset.filter(id=kwargs['id']).first()
+
+        if not instance:
+            return Response({'message': 'Payment instance does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+        # Get the last 4 digits of the phone number
+        last_4_digits = request.user.phone_number[-4:]
+    
+        # Generate a UUID and get the first 5 characters
+        unique_id = request.user.id[:5]
+    
+        # Get the current timestamp in milliseconds
+        timestamp = int(time.time() * 1000)
+    
+        # Construct the transaction ID
+        request.data['transaction_id'] = f"#{last_4_digits}{unique_id}{timestamp}"
+
+        serializer = self.serializer_class(instance=instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            payment_obj = serializer.save()
+            subject = 'Mental Well'
+            message = f'Your payment of {payment_obj.due_amount} was successful.'
+            send_email(None, subject, message, request.user.id)
+            print(request.data['transaction_id'])
+            return Response({'message': 'Payment updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(parameters=set_query_params('list', [
+        {"name": 'counselor_id', "description": 'Filter by counselor_id'},
+        {"name": 'client_id', "description": 'Filter by client_id'},
+
+    ]))
+    @allowed_users(allowed_roles=['ADMIN'])
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset
+        counselor_id = request.query_params.get('counselor_id', None)
+        client_id = request.query_params.get('client_id', None)
+        if counselor_id:
+            queryset = queryset.filter(counselor=counselor_id)
+        elif client_id:
+            queryset = queryset.filter(client=client_id)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    @extend_schema(parameters=set_query_params('list', [
+        {"name": 'client_id', "description": 'Filter by client_id'},
+
+    ]))
+    @allowed_users(allowed_roles=['COUNSELOR'])
+    def get_counselor_payment_history(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(counselor=request.user.id)
+        client_id = request.query_params.get('client_id', None)
+        if client_id:
+            queryset = queryset.filter(client=client_id)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    @allowed_users(allowed_roles=['CLIENT'])
+    def get_client_payment_history(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(client=request.user.id)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.serializer_class(
+                page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = self.queryset
+        obj = queryset.filter(id=request.user.id).first()
+        if not obj:
+            return Response({'message': 'Payment does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     

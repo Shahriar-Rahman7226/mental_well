@@ -54,6 +54,6 @@ PackageType = (
 
 ReviewStatus = (
     ('PENDING', 'pending'),
-    ('ACCEPTED', 'accepted'),
+    ('APPROVED', 'approved'),
     ('REJECTED', 'rejected'),
 )

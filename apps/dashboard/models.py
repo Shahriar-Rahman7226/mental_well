@@ -114,7 +114,7 @@ class AppointmentRequest(CustomModel):
     schedule = models.ForeignKey(CounselorSchedule, related_name='appointment_schedule', on_delete=models.CASCADE, blank=True, null=True)
     booking_date = models.DateTimeField(blank=True, null=True)
     status= models.CharField(max_length=100, blank=True, null=True, choices=AdminStatus, default=AdminStatus[0][0])
-    is_paid = models.BooleanField(blank=True, null=True, default=False)
+    # is_paid = models.BooleanField(blank=True, null=True, default=False)
 
     class Meta:
         db_table='appointment_request'
@@ -151,7 +151,7 @@ class Achievements(CustomModel):
     awarded_by = models.CharField(max_length=100, blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     details = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=100, blank=True, null=True, choices=AdminStatus, default=AdminStatus[0][0])
+    status = models.CharField(max_length=100, blank=True, null=True, choices=ReviewStatus, default=ReviewStatus[0][0])
 
     class Meta:
         db_table='achievements'
@@ -159,14 +159,14 @@ class Achievements(CustomModel):
 
 
 class Article(CustomModel):
-    thumbnail = models.ImageField(upload_to='article/', blank=True, null=True)
+    image = models.ImageField(upload_to='article/', blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True) 
     author = models.ForeignKey(CounselorProfileModel, related_name='author_article', on_delete=models.CASCADE, blank=True, null=True)
     author_name = models.CharField(max_length=100, blank=True, null=True)  
     article_file = models.FileField(blank=True, null=True)
     published_at = models.DateTimeField(blank=True, null=True)  
     status = models.CharField(max_length=100, blank=True, null=True, choices=ReviewStatus, default=ReviewStatus[0][0])
-    is_published = models.BooleanField(blank=True, null=True) 
+    is_published = models.BooleanField(blank=True, null=True, default=False) 
 
     def __str__(self):
         return f"{self.title if self.title else ''} - {self.author_name if self.author_name else ''}"
@@ -177,14 +177,14 @@ class Article(CustomModel):
 
 
 class VideoJournal(CustomModel):
-    thumbnail = models.ImageField(upload_to='video_journal/', blank=True, null=True)
+    image = models.ImageField(upload_to='video_journal/', blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True) 
     author = models.ForeignKey(CounselorProfileModel, related_name='author_video_journal', on_delete=models.CASCADE, blank=True, null=True)
     author_name = models.CharField(max_length=100, blank=True, null=True)  
-    journal_link = models.URLField(blank=True, null=True)
+    video_link = models.URLField(blank=True, null=True)
     published_at = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True, choices=ReviewStatus, default=ReviewStatus[0][0])
-    is_published = models.BooleanField(blank=True, null=True) 
+    is_published = models.BooleanField(blank=True, null=True, default=False) 
   
 
     def __str__(self):
@@ -200,7 +200,7 @@ class FAQModel(CustomModel):
     client = models.ForeignKey(UserModel, related_name='faq_client', on_delete=models.CASCADE, blank=True, null=True)
     question = models.TextField(blank=True, null=True)
     asnwer = models.TextField(blank=True, null=True)
-    is_published = models.BooleanField(blank=True, null=True)
+    is_published = models.BooleanField(blank=True, null=True, default=False)
 
     class Meta:
         db_table='faq_model'
@@ -229,24 +229,14 @@ class Payment(CustomModel):
         return f"{first_name} {last_name} - {transaction_id}"
 
 
-# #Session Price and Booking
-# class SessionPackage(CustomModel):
-#     package = models.CharField(max_length=100, choices=PackageType, unique=True, blank=True, null=True)
-#     price = models.FloatField(max_digits=10, decimal_places=2, blank=True, null=True)
-#     sessions_count = models.PositiveIntegerField(default=0, blank=True, null=True)
-
-#     class Meta:
-#         db_table = 'session_package'
-
-
 class Review(CustomModel):
     counselor = models.ForeignKey(CounselorProfileModel, related_name='counselor_review', on_delete=models.CASCADE, blank=True, null=True)
     client = models.ForeignKey(ClientProfileModel, related_name='client_review', on_delete=models.CASCADE, blank=True, null=True)
     rating = models.PositiveIntegerField(blank=True, null=True) 
     review_text = models.TextField(blank=True, null=True)
-    client_name = models.CharField(max_length=100, blank=True, null=True)
+    # client_name = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True, choices=ReviewStatus, default=ReviewStatus[0][0])
-    is_published = models.BooleanField(blank=True, null=True) 
+    is_published = models.BooleanField(blank=True, null=True, default=False) 
     appointment_count = models.PositiveIntegerField(blank=True, null=True)
 
     def __str__(self):

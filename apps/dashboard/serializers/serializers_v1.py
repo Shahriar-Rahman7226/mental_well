@@ -86,7 +86,7 @@ class ArticleSerializer(ModelSerializer):
         model = Article
         exclude = exclude_list
 
-class videoJournalSerializer(ModelSerializer):
+class VideoJournalSerializer(ModelSerializer):
 
     class Meta:
         model = VideoJournal
