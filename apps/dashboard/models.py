@@ -113,7 +113,7 @@ class AppointmentRequest(CustomModel):
     client = models.ForeignKey(ClientProfileModel, related_name='client_request', on_delete=models.CASCADE, blank=True, null=True)
     schedule = models.ForeignKey(CounselorSchedule, related_name='appointment_schedule', on_delete=models.CASCADE, blank=True, null=True)
     booking_date = models.DateTimeField(blank=True, null=True)
-    status=models.CharField(max_length=100, blank=True, null=True, choices=AdminStatus, default=AdminStatus[0][0])
+    status= models.CharField(max_length=100, blank=True, null=True, choices=AdminStatus, default=AdminStatus[0][0])
     is_paid = models.BooleanField(blank=True, null=True, default=False)
 
     class Meta:
@@ -136,7 +136,7 @@ class ClientProgress(CustomModel):
 
 
 class ClientProgressDetails(CustomModel):
-    overview = models.ForeignKey(ClientProfileModel, related_name='progress_details', on_delete=models.CASCADE, blank=True, null=True)
+    progress = models.ForeignKey(ClientProfileModel, related_name='progress_details', on_delete=models.CASCADE, blank=True, null=True)
     appointment = models.ForeignKey(AppointmentRequest, related_name='progress_appointment', on_delete=models.CASCADE, blank=True, null=True)
     details = models.TextField(blank=True, null=True)
 
@@ -151,6 +151,7 @@ class Achievements(CustomModel):
     awarded_by = models.CharField(max_length=100, blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     details = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=100, blank=True, null=True, choices=AdminStatus, default=AdminStatus[0][0])
 
     class Meta:
         db_table='achievements'

@@ -892,3 +892,4 @@ class ClientProgressDetailsViewSet(ModelViewSet):
             return Response({'message': 'Client Progress Details does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.serializer_class(obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
