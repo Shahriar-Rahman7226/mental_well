@@ -14,15 +14,11 @@ router.register('about-us', AboutUsViewSet, basename='about_us')
 router.register('footer', FooterViewSet, basename='footer')
 router.register('counselor-schedule', CounselorScheduleViewSet, basename='counselor_schedule')
 router.register('appointment-request', AppointmentRequestViewSet, basename='appointment_request')
+router.register('client-progress', ClientProgressViewSet, basename='client_progress')
+router.register('client-progress-details', ClientProgressDetailsViewSet, basename='client_progress_details')
 
 urlpatterns = [
     path(r'', include(router.urls)),
      path('get_schedule/', CounselorScheduleViewSet.as_view({'get': 'get_schedule'})),
      path('get_request/', AppointmentRequestViewSet.as_view({'get': 'get_request'})),
-    # path('counselor-schedules/', views.CounselorScheduleListCreateView.as_view(), name='counselor_schedule_list_create'),
-    # path('counselor-schedules/<int:pk>/', views.CounselorScheduleDetailView.as_view(), name='counselor_schedule_detail'),
-    # path('appointments/', views.AppointmentRequestListCreateView.as_view(), name='appointment_list_create'),
-    # path('appointments/<int:pk>/', views.AppointmentRequestDetailView.as_view(), name='appointment_detail'),
-    # path('session-packages/', views.SessionPackageListView.as_view(), name='session_package_list'),
-    # path('make-payment/', views.PaymentCreateView.as_view(), name='make_payment'),
 ]
