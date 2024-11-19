@@ -31,29 +31,44 @@ Days = (
     ('SATURDAY', 'saturday'),
 )
 
-AdminStatus = (
+ProfileStatus = (
     ('PENDING', 'pending'),
-    ('CONFIRMED', 'confirmed'),
-    ('DONE', 'done'),
+    ('APPROVED', 'approved'),
+    ('REJECTED', 'rejected'),
+)
+
+AppointmentStatus = (
+    ('PENDING', 'pending'),
+    ('ASSIGNED', 'assigned'),
+    ('COMPLETED', 'completed'),
     ('CANCELLED', 'cancelled'),
     ('REJECTED', 'rejected'),
 )
 
-ClientOverview = (
+ScheduleStatus = (
+    ('PENDING', 'pending'),
+    ('APPROVED', 'approved'),
+    ('REJECTED', 'rejected'),
+)
+
+ProgressStatus = (
     ('ASSIGNED', 'assigned'),
     ('ONGOING', 'ongoing'),
     ('COMPLETED', 'completed'),
     ('INCOMPLETE', 'incomplete'),
 )
 
-
-PackageType = (
-        ('SINGLE', 'single'),
-        ('FIVE', 'five'),
-)
-
-ReviewStatus = (
+ResourceStatus = (
     ('PENDING', 'pending'),
     ('APPROVED', 'approved'),
     ('REJECTED', 'rejected'),
+)
+
+ResourceType = (
+        ('ARTICLE', 'article'),
+        ('VIDEO', 'video'),
+        ('AUDIO', 'audio'),
+        ('EBOOK', 'ebook'),
+        ('RESEARCH PAPER', 'research paper'),
+        ('THESIS', 'thesis'),
 )

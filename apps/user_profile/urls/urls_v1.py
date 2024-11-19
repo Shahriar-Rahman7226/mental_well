@@ -7,6 +7,7 @@ router = DefaultRouter()
 router.register('specialization', SpecializationViewSet, basename='specialization')
 router.register('counselor-profile', CounselorProfileViewSet, basename='couselor_profile')
 router.register('client-profile', ClientProfileViewSet, basename='client_profile')
+router.register('achievements', AchievementsViewSet, basename='achievements')
 
 urlpatterns = [
                   path(r'', include(router.urls)),

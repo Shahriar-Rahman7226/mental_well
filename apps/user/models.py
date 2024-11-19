@@ -31,6 +31,7 @@ class CustomUserManager(BaseUserManager):
 class UserModel(AbstractBaseUser, CustomModel, PermissionsMixin):
     first_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50, blank=True, null=True)
+    full_name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(blank=True, null=True, unique=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True, unique=True)
@@ -54,6 +55,6 @@ class UserModel(AbstractBaseUser, CustomModel, PermissionsMixin):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.first_name if self.first_name else ''} {self.last_name if self.last_name else ''} -- {self.phone_number if self.phone_number else ''} -- {self.user_role if self.user_role else ''}" 
+        return f"{self.full_name if self.full_name else ''} -- {self.phone_number if self.phone_number else ''} -- {self.user_role if self.user_role else ''}" 
 
 

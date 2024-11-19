@@ -37,6 +37,12 @@ CUSTOM_APPS = [
     'apps.dashboard',
     'apps.user',
     'apps.user_profile',
+    'apps.payment',
+    'apps.appointment_management',
+    'apps.client_feedback',
+    'apps.client_progress',
+    'apps.counselor_resources',
+    'apps.schedule_management',
 ]
 
 INSTALLED_LIBRARIES = [

@@ -3,18 +3,10 @@ from .models import *
 
 admin.site.register(BannerModel)
 admin.site.register(MotivationModel)
-admin.site.register(Resources)
 admin.site.register(LegalDocument)
 admin.site.register(PrivacyPolicy)
 admin.site.register(AboutUs)
 admin.site.register(FooterModel)
-admin.site.register(CounselorSchedule)
-admin.site.register(AppointmentRequest)
-admin.site.register(ClientProgress)
-admin.site.register(ClientProgressDetails)
-admin.site.register(Achievements)
-admin.site.register(Article)
-admin.site.register(VideoJournal)
-admin.site.register(FAQModel)
-admin.site.register(Payment)
-admin.site.register(Review)
+
+
+
