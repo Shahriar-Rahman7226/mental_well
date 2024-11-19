@@ -72,3 +72,9 @@ ResourceType = (
         ('RESEARCH PAPER', 'research paper'),
         ('THESIS', 'thesis'),
 )
+
+AchievementStatus = (
+    ('PENDING', 'pending'),
+    ('APPROVED', 'approved'),
+    ('REJECTED', 'rejected'),
+)

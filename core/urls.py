@@ -36,7 +36,7 @@ urlpatterns = [
     path('authentication/', include('apps.authentication.urls.urls_v1')),
     path('dashboard/', include('apps.dashboard.urls.urls_v1')),
     path('payment/', include('apps.payment.urls.urls_v1')),
-    path('appointment_request/', include('apps.appointment_request.urls.urls_v1')),
+    path('appointment_management/', include('apps.appointment_management.urls.urls_v1')),
     path('client_feedback/', include('apps.client_feedback.urls.urls_v1')),
     path('client_progress/', include('apps.client_progress.urls.urls_v1')),
     path('counselor_resources/', include('apps.counselor_resources.urls.urls_v1')),

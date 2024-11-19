@@ -1,7 +1,7 @@
 from django.db import models
 from abstract.base_model import CustomModel
 from apps.user.models import UserModel
-from external.choice_tuple import ProfileStatus
+from external.choice_tuple import ProfileStatus, AchievementStatus
 # Create your models here.
 
 
@@ -56,17 +56,17 @@ class ClientProfileModel(CustomModel):
         return f"{self.user.full_name if self.user else ''} -- {self.status if self.status else ''}" 
     
 
-class Achievements(CustomModel):
+class CounselorAchievements(CustomModel):
     counselor = models.ForeignKey(CounselorProfileModel, related_name='counselor_achievements', on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True)
     awarded_by = models.CharField(max_length=100, blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     details = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=100, blank=True, null=True, choices=ResourceStatus, default=ResourceStatus[0][0])
+    status = models.CharField(max_length=100, blank=True, null=True, choices=AchievementStatus, default=AchievementStatus[0][0])
 
     def __str__(self):
         return f"{self.title if self.title else ''} - {self.counselor.user.full_name if self.counselor.user else ''}"
 
     class Meta:
-        db_table='achievements'
+        db_table='counselor_achievements'
         ordering=['-created_at']

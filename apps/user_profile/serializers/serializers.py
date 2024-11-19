@@ -58,8 +58,8 @@ class ClientProfileListSerializer(ModelField):
         model = ClientProfileModel
         exclude = exclude_list
 
-class AchievementsSerializer(ModelSerializer):
+class CounselorAchievementsSerializer(ModelSerializer):
 
     class Meta:
-        model = Achievements
+        model = CounselorAchievements
         exclude = exclude_list

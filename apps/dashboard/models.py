@@ -13,7 +13,7 @@ class BannerModel(CustomModel):
         return f"{self.title if self.title else ''}"
     
     class Meta:
-        db_table='banner_model'
+        db_table='banner'
         ordering=['-created_at']
 
 
@@ -64,7 +64,7 @@ class AboutUs(CustomModel):
     linkedin = models.URLField(blank=True, null=True)
 
     class Meta:
-        db_table='about_us'
+        db_table='about_us_models'
         ordering=['-created_at']
 
 

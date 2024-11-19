@@ -5,4 +5,4 @@ from apps.user_profile.models import *
 admin.site.register(SpecializationModel)
 admin.site.register(CounselorProfileModel)
 admin.site.register(ClientProfileModel)
-admin.site.register(Achievements)
+admin.site.register(CounselorAchievements)

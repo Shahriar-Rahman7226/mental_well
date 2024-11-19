@@ -351,8 +351,8 @@ class ClientProfileViewSet(ModelViewSet):
 
 @extend_schema(tags=['Achievements'])
 class AchievementsViewSet(ModelViewSet):
-    model_class = Achievements
-    serializer_class = AchievementsSerializer
+    model_class = CounselorAchievements
+    serializer_class = CounselorAchievementsSerializer
     queryset = model_class.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     pagination_classes = CustomPagination
